@@ -13,12 +13,14 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
     struct Bundle
     {
         public IMicroSourceGenerator Generator { get; init; }
-        public MicroSourceGenerationArg Data { get; init; }
+        public MicroSourceGenerationArg Arg { get; init; }
     }
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         context.RegisterPostInitializationOutput(ProductInitialCode);
-        context.RegisterSourceOutput(CreateProvider(context), ProductSource);
+        context.RegisterSourceOutput(
+            CreateProvider(context),
+            (context, bundle) => bundle.Generator.ProductSource(context, bundle.Arg));
     }
 
     static string AttributeFullName => "MicroSourceGenerator.Attributes.MicroSourceGeneratorAttribute";
@@ -28,9 +30,9 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
         var externs = syntax.Externs.Concat(syntax.ChildNodes().OfType<BaseNamespaceDeclarationSyntax>().SelectMany(n => n.Externs));
         return (new(usings), new(externs));
     }
-    static IncrementalValuesProvider<Bundle> CreateProvider(IncrementalGeneratorInitializationContext context)
+    static IncrementalValueProvider<(ImmutableArray<IMicroSourceGenerator>, ImmutableArray<Diagnostic>)> CreateGeneratorProvider(IncrementalGeneratorInitializationContext context)
     {
-        var generatorProvider = context.SyntaxProvider.CreateSyntaxProvider(
+        return context.SyntaxProvider.CreateSyntaxProvider(
              static (node, token) =>
              {
                  token.ThrowIfCancellationRequested();
@@ -72,7 +74,10 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
                  var diagnostics = compilation.GetDiagnostics();
                  return (generators, diagnostics);
              });
-
+    }
+    static IncrementalValuesProvider<Bundle> CreateProvider(IncrementalGeneratorInitializationContext context)
+    {
+        var generatorProvider = CreateGeneratorProvider(context);
         var generatorSyntaxProvider = context.SyntaxProvider.CreateSyntaxProvider(
             (node, token) => true,
             (context, token) =>
@@ -91,7 +96,7 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
                     Compilation = compilation,
                     Node = context.Node,
                 };
-                return generators.Where(g => g.Accept(data)).Select(g => new Bundle { Data = data, Generator = g });
+                return generators.Where(g => g.Accept(data)).Select(g => new Bundle { Arg = data, Generator = g });
             });
 
         return generatorSyntaxProvider;
@@ -139,10 +144,6 @@ namespace MicroSourceGenerator.Attributes
 }
 ");
         context.AddSource("MetaMicroSourceGeneratorAttributes.g.cs", builder.ToString());
-    }
-    static void ProductSource(SourceProductionContext context, Bundle bundle)
-    {
-        bundle.Generator.ProductSource(context, bundle.Data);
     }
 }
 
