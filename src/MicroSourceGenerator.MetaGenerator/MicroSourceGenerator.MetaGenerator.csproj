@@ -40,7 +40,7 @@
 	<!-- nuget -->
 	<PropertyGroup>
 		<Authors>maemon4095</Authors>
-		<Version>0.0.0-alpha.0</Version>
+		<Version>0.0.0-alpha.1</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
