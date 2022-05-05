@@ -24,12 +24,30 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
     }
 
     static string AttributeFullName => "MicroSourceGenerator.Attributes.MicroSourceGeneratorAttribute";
+    
+    static void ProductInitialCode(IncrementalGeneratorPostInitializationContext context)
+    {
+        var builder = new StringBuilder();
+        builder.Append(@"
+namespace MicroSourceGenerator.Attributes
+{
+    [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct)]
+    class MicroSourceGeneratorAttribute : global::System.Attribute
+    {
+        
+    }
+}
+");
+        context.AddSource("MetaMicroSourceGeneratorAttributes.g.cs", builder.ToString());
+    }
+    
     static (SyntaxList<UsingDirectiveSyntax> Usings, SyntaxList<ExternAliasDirectiveSyntax> Externs) GetUsingOrExtern(CompilationUnitSyntax syntax)
     {
         var usings = syntax.Usings.Concat(syntax.ChildNodes().OfType<BaseNamespaceDeclarationSyntax>().SelectMany(n => n.Usings));
         var externs = syntax.Externs.Concat(syntax.ChildNodes().OfType<BaseNamespaceDeclarationSyntax>().SelectMany(n => n.Externs));
         return (new(usings), new(externs));
     }
+    
     static IncrementalValueProvider<(ImmutableArray<IMicroSourceGenerator>, ImmutableArray<Diagnostic>)> CreateGeneratorProvider(IncrementalGeneratorInitializationContext context)
     {
         return context.SyntaxProvider.CreateSyntaxProvider(
@@ -75,6 +93,7 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
                  return (generators, diagnostics);
              });
     }
+    
     static IncrementalValuesProvider<Bundle> CreateProvider(IncrementalGeneratorInitializationContext context)
     {
         var generatorProvider = CreateGeneratorProvider(context);
@@ -101,6 +120,7 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
 
         return generatorSyntaxProvider;
     }
+    
     static CSharpCompilation CreateCompilation(CSharpCompilation sourceCompilation, ImmutableArray<MicroGeneratorInfo> generatorInfos)
     {
         var syntaxTrees = generatorInfos.Select(info =>
@@ -118,6 +138,7 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
         );
         return compilation;
     }
+    
     static ImmutableArray<IMicroSourceGenerator> CreateGenerators(CSharpCompilation compilation)
     {
         var stream = new MemoryStream();
@@ -129,20 +150,5 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
                             .Select(type => Activator.CreateInstance(type) as IMicroSourceGenerator)
                             .OfType<IMicroSourceGenerator>();
         return ImmutableArray.CreateRange(generators);
-    }
-    static void ProductInitialCode(IncrementalGeneratorPostInitializationContext context)
-    {
-        var builder = new StringBuilder();
-        builder.Append(@"
-namespace MicroSourceGenerator.Attributes
-{
-    [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct)]
-    class MicroSourceGeneratorAttribute : global::System.Attribute
-    {
-        
-    }
-}
-");
-        context.AddSource("MetaMicroSourceGeneratorAttributes.g.cs", builder.ToString());
     }
 }
