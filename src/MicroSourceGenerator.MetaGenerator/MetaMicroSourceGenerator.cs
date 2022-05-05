@@ -12,10 +12,10 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
 {
     struct Bundle
     {
-        public IMicroSourceGenerator Generator { get; init; }
+        public ImmutableArray<IMicroSourceGenerator> Generators { get; init; }
+        public IEnumerable<Diagnostic> Diagnostics { get; init; }
         public SemanticModel SemanticModel { get; init; }
         public SyntaxNode SyntaxNode { get; init; }
-        public IEnumerable<Diagnostic> Diagnostics { get; init; }
     }
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
@@ -144,18 +144,17 @@ namespace MicroSourceGenerator
                 return context;
             })
             .Combine(generatorProvider).Combine(context.CompilationProvider)
-            .SelectMany((pair, token) =>
+            .Select((pair, token) =>
             {
                 token.ThrowIfCancellationRequested();
                 var ((context, (generators, diagnostics)), compilation) = pair;
-                return generators.Where(g => g.Accept(context.SemanticModel, context.Node))
-                                 .Select(g => new Bundle
-                                 {
-                                     Generator = g,
-                                     SemanticModel = context.SemanticModel,
-                                     SyntaxNode = context.Node,
-                                     Diagnostics = diagnostics
-                                 });
+                return new Bundle
+                {
+                    SemanticModel = context.SemanticModel,
+                    SyntaxNode = context.Node,
+                    Diagnostics = diagnostics,
+                    Generators = generators,
+                };
             });
 
         return generatorSyntaxProvider;
@@ -213,11 +212,10 @@ namespace MicroSourceGenerator
 
     static void ProductSource(SourceProductionContext context, Bundle bundle)
     {
-        var generator = bundle.Generator;
         foreach (var diganostic in bundle.Diagnostics)
         {
             context.ReportDiagnostic(diganostic);
         }
-        generator.ProductSource(context, bundle.SemanticModel, bundle.SyntaxNode);
+        bundle.Generators.Where(g => g.Accept(bundle.SemanticModel, bundle.SyntaxNode));
     }
 }
