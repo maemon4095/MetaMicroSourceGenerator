@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MicroSourceGenerator" Version="0.0.0-alpha.0" GeneratePathProperty="true" />
+		<PackageReference Include="MicroSourceGenerator" Version="0.0.0-alpha.1" GeneratePathProperty="true" />
 		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" PrivateAssets="all" GeneratePathProperty="true" />
 	</ItemGroup>
 
