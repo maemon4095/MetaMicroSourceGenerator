@@ -9,13 +9,6 @@ namespace MicroSourceGenerator;
 
 public interface IMicroSourceGenerator
 {
-    public bool Accept(MicroSourceGenerationArg arg);
-    public void ProductSource(SourceProductionContext context, MicroSourceGenerationArg arg);
-}
-
-public struct MicroSourceGenerationArg
-{
-    public SemanticModel SemanticModel { get; init; }
-    public Compilation Compilation { get; init; }
-    public SyntaxNode Node { get; init; }
+    public bool Accept(SemanticModel semanticModel, SyntaxNode node);
+    public void ProductSource(SourceProductionContext context, SemanticModel semanticModel, SyntaxNode node);
 }

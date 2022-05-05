@@ -5,7 +5,7 @@ using System.Collections.Immutable;
 
 namespace MicroSourceGenerator.MetaGenerator;
 
-struct MicroGeneratorInfo
+readonly struct MicroGeneratorInfo
 {
     class EqualityComparer : EqualityComparer<MicroGeneratorInfo>
     {
@@ -20,4 +20,5 @@ struct MicroGeneratorInfo
     public TypeDeclarationSyntax Syntax { get; init; }
     public INamedTypeSymbol Symbol { get; init; }
     public ImmutableArray<AttributeData> Attributes { get; init; }
+    public SyntaxTree SyntaxTree { get; init; }
 }

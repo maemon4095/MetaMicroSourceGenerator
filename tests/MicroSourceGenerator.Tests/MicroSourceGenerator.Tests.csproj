@@ -20,9 +20,4 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\MicroSourceGenerator.MetaGenerator\MicroSourceGenerator.MetaGenerator.csproj" />
-    <ProjectReference Include="..\..\src\MicroSourceGenerator\MicroSourceGenerator.csproj" />
-  </ItemGroup>
-
 </Project>
