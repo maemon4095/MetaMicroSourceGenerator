@@ -10,5 +10,8 @@ class CommentGenerator : IMicroSourceGenerator
     {
         throw new NotImplementedException();
     }
+
+    public void ProductInitialSource(SourceProductionContext context) { }
+
     public void ProductSource(SourceProductionContext context, SemanticModel semanticModel, SyntaxNode node) => throw new NotImplementedException();
 }

@@ -97,7 +97,7 @@ namespace MicroSourceGenerator
              .Combine(context.CompilationProvider)
              .Select((pair, token) =>
              {
-                 //generatorInfos contains default(MicroGeneratorInfo) so we should do null check. It seems mixed at Collect method and that maybe compiler bug.
+                 //generatorInfos contains default(MicroGeneratorInfo) so we should do null check. It seems mixed at Collect method and that might be a compiler bug.
                  token.ThrowIfCancellationRequested();
                  var ((generatorInfos, usings), sourceCompilation) = pair;
                  var compilation = CreateCompilation((sourceCompilation as CSharpCompilation)!, usings, generatorInfos);
@@ -177,7 +177,7 @@ namespace MicroSourceGenerator
             var compilation = CSharpCompilation.Create(
                 $"MicroGenerators.g.dll",
                 syntaxTrees,
-                new[] { MetadataReference.CreateFromFile(Assembly.GetExecutingAssembly().Location) },
+                AppDomain.CurrentDomain.GetAssemblies().Select(asm => MetadataReference.CreateFromFile(asm.Location)),
                 sourceCompilation.Options.WithOutputKind(OutputKind.DynamicallyLinkedLibrary)
             );
 
@@ -201,12 +201,12 @@ namespace MicroSourceGenerator
             }
             stream.Seek(0, SeekOrigin.Begin);
             var asm = Assembly.Load(stream.ToArray());
-            var generators = asm.GetTypes().Select(type => (Activator.CreateInstance(type) as IMicroSourceGenerator)!);
+            var generators = asm.GetTypes().Where(type => typeof(IMicroSourceGenerator).IsAssignableFrom(type)).Select(Activator.CreateInstance).OfType<IMicroSourceGenerator>();
             return (ImmutableArray.CreateRange(generators), result.Diagnostics);
         }
         catch (Exception ex)
         {
-            throw new Exception($"{ex.GetType().Name} was thrown in source generation. StackTrace : {ex.StackTrace} Message : {ex.Message}", ex);
+            throw new Exception($"{ex.GetType().Name} was thrown in source generation. Message : {ex.Message}", ex);
         }
     }
 
@@ -216,6 +216,30 @@ namespace MicroSourceGenerator
         {
             context.ReportDiagnostic(diganostic);
         }
-        bundle.Generators.Where(g => g.Accept(bundle.SemanticModel, bundle.SyntaxNode));
+        var syntaxNode = bundle.SyntaxNode;
+        var semanticModel = bundle.SemanticModel;
+
+        foreach (var generator in bundle.Generators)
+        {
+            try
+            {
+                if (!generator.Accept(semanticModel, syntaxNode)) continue;
+            }
+            catch (Exception ex)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(DiagnosticHelper.SyntaxFilteringError, syntaxNode.GetLocation(), generator, ex.GetType(), ex.StackTrace, ex.Message));
+                continue;
+            }
+
+            try
+            {
+                generator.ProductSource(context, semanticModel, syntaxNode);
+            }
+            catch (Exception ex)
+            {
+                context.ReportDiagnostic(Diagnostic.Create(DiagnosticHelper.SourceProductionError, syntaxNode.GetLocation(), generator, ex.GetType(), ex.StackTrace, ex.Message));
+                continue;
+            }
+        }
     }
 }
