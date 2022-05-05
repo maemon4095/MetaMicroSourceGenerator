@@ -146,16 +146,3 @@ namespace MicroSourceGenerator.Attributes
         context.AddSource("MetaMicroSourceGeneratorAttributes.g.cs", builder.ToString());
     }
 }
-
-interface IMicroSourceGenerator
-{
-    public bool Accept(MicroSourceGenerationArg arg);
-    public void ProductSource(SourceProductionContext context, MicroSourceGenerationArg arg);
-}
-
-struct MicroSourceGenerationArg
-{
-    public SemanticModel SemanticModel { get; init; }
-    public Compilation Compilation { get; init; }
-    public SyntaxNode Node { get; init; }
-}
