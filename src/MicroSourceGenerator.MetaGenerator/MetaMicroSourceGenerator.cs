@@ -151,6 +151,8 @@ namespace MicroSourceGenerator
 
                 throw new Exception($"Compilation Equality : {context.SemanticModel.Compilation == compilation}");
 
+                return Enumerable.Empty<Bundle>();
+                /*
                 return generators.Where(g => g.Accept(context.SemanticModel, context.Node))
                                  .Select(g => new Bundle
                                  {
@@ -159,6 +161,7 @@ namespace MicroSourceGenerator
                                      SyntaxNode = context.Node,
                                      Diagnostics = diagnostics
                                  });
+                */
             });
 
         return generatorSyntaxProvider;
@@ -221,6 +224,6 @@ namespace MicroSourceGenerator
         {
             context.ReportDiagnostic(diganostic);
         }
-        generator.ProductSource(context, bundle.Arg);
+        // generator.ProductSource(context, bundle.SemanticModel, bundle.SyntaxNode);
     }
 }

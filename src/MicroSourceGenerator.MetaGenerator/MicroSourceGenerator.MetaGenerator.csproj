@@ -9,6 +9,7 @@
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<Deterministic>true</Deterministic>
 
+		<IsPackable>false</IsPackable>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 		<IncludeSymbols>false</IncludeSymbols>
