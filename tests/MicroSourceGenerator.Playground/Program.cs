@@ -6,9 +6,9 @@ Console.WriteLine();
 [MicroSourceGenerator]
 class CommentGenerator : IMicroSourceGenerator
 {
-    public bool Accept(MicroSourceGenerationArg arg)
+    public bool Accept(SemanticModel semanticModel, SyntaxNode node)
     {
         throw new NotImplementedException();
     }
-    public void ProductSource(SourceProductionContext context, MicroSourceGenerationArg arg) => throw new NotImplementedException();
+    public void ProductSource(SourceProductionContext context, SemanticModel semanticModel, SyntaxNode node) => throw new NotImplementedException();
 }
