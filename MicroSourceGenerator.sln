@@ -5,21 +5,17 @@ VisualStudioVersion = 17.1.32328.378
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{734BACEE-D6AB-414C-9440-CCB247EBF192}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSourceGenerator", "src\MicroSourceGenerator\MicroSourceGenerator.csproj", "{C3A205F0-7717-4902-B1AA-1F56DCE8653B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSourceGenerator", "src\MicroSourceGenerator\MicroSourceGenerator.csproj", "{C3A205F0-7717-4902-B1AA-1F56DCE8653B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSourceGenerator.MetaGenerator", "src\MicroSourceGenerator.MetaGenerator\MicroSourceGenerator.MetaGenerator.csproj", "{2440A72A-9533-4D89-AC53-FF2A433325DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSourceGenerator.MetaGenerator", "src\MicroSourceGenerator.MetaGenerator\MicroSourceGenerator.MetaGenerator.csproj", "{2440A72A-9533-4D89-AC53-FF2A433325DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{818E733B-F34F-478A-BFCE-7380144EC96B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSourceGenerator.Tests", "tests\MicroSourceGenerator.Tests\MicroSourceGenerator.Tests.csproj", "{51F36D58-81DD-4F82-9806-7DD0F50EEDAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MicroSourceGenerator.Tests", "tests\MicroSourceGenerator.Tests\MicroSourceGenerator.Tests.csproj", "{51F36D58-81DD-4F82-9806-7DD0F50EEDAF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MicroSourceGenerator.Playground", "MicroSourceGenerator.Playground\MicroSourceGenerator.Playground.csproj", "{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}"
 EndProject
 Global
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {44636793-7F52-40C9-9EE0-C6D9E5C1FC09}
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|x64 = Debug|x64
@@ -65,10 +61,29 @@ Global
 		{51F36D58-81DD-4F82-9806-7DD0F50EEDAF}.Release|x64.Build.0 = Release|Any CPU
 		{51F36D58-81DD-4F82-9806-7DD0F50EEDAF}.Release|x86.ActiveCfg = Release|Any CPU
 		{51F36D58-81DD-4F82-9806-7DD0F50EEDAF}.Release|x86.Build.0 = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|x64.Build.0 = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Debug|x86.Build.0 = Debug|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|x64.ActiveCfg = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|x64.Build.0 = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|x86.ActiveCfg = Release|Any CPU
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{C3A205F0-7717-4902-B1AA-1F56DCE8653B} = {734BACEE-D6AB-414C-9440-CCB247EBF192}
 		{2440A72A-9533-4D89-AC53-FF2A433325DD} = {734BACEE-D6AB-414C-9440-CCB247EBF192}
 		{51F36D58-81DD-4F82-9806-7DD0F50EEDAF} = {818E733B-F34F-478A-BFCE-7380144EC96B}
+		{CBB6E2C8-21A5-4FB8-9411-28F802E4B62B} = {818E733B-F34F-478A-BFCE-7380144EC96B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {44636793-7F52-40C9-9EE0-C6D9E5C1FC09}
 	EndGlobalSection
 EndGlobal
