@@ -19,4 +19,12 @@ static class DiagnosticHelper
         category: "MicroSourceGenerator",
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
+
+    public static DiagnosticDescriptor GeneratorInitializationError { get; } = new(
+        id: "MSG003",
+        title: "Generator Initialization Failure",
+        messageFormat: "Generator '{0}' failed to initialize and {1} was thrown. StackTrace : {2}. Message : {3}.",
+        category: "MicroSourceGenerator",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
 }

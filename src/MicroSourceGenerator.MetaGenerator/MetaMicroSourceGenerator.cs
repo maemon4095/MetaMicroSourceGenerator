@@ -12,9 +12,8 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
 {
     struct Bundle
     {
-        public ImmutableArray<IMicroSourceGenerator> Generators { get; init; }
+        public IEnumerable<IMicroSourceGenerator> Generators { get; init; }
         public IEnumerable<Diagnostic> Diagnostics { get; init; }
-        public SemanticModel SemanticModel { get; init; }
         public SyntaxNode SyntaxNode { get; init; }
     }
     public void Initialize(IncrementalGeneratorInitializationContext context)
@@ -23,7 +22,9 @@ public partial class MetaMicroSourceGenerator : IIncrementalGenerator
         context.RegisterSourceOutput(CreateProvider(context), ProductSource);
     }
 
-    static string AttributeFullName => "MicroSourceGenerator.MicroSourceGeneratorAttribute";
+    static string Namespace => "MicroSourceGenerator";
+    static string GeneratorAttributeFullName => $"{Namespace}.MicroSourceGeneratorAttribute";
+    static string DependencyAttributeFullName => $"{Namespace}.MicroGeneratorDependencyAttribute";
 
     static void ProductInitialCode(IncrementalGeneratorPostInitializationContext context)
     {
@@ -33,6 +34,12 @@ namespace MicroSourceGenerator
 {
     [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct)]
     class MicroSourceGeneratorAttribute : global::System.Attribute
+    {
+        
+    }
+
+    [global::System.AttributeUsage(global::System.AttributeTargets.Class | global::System.AttributeTargets.Struct)]
+    class MicroGeneratorDependencyAttribute : global::System.Attribute
     {
         
     }
@@ -70,16 +77,23 @@ namespace MicroSourceGenerator
              {
                  token.ThrowIfCancellationRequested();
                  var (syntax, symbol, attributes, semanticModel) = pair;
-                 var attributeSymbol = semanticModel.Compilation.GetTypeByMetadataName(AttributeFullName) ?? throw new NullReferenceException("marker attribute was not found.");
+                 var generatorAttributeSymbol = semanticModel.Compilation.GetTypeByMetadataName(GeneratorAttributeFullName) ?? throw new NullReferenceException("marker attribute was not found.");
+                 var dependencyAttributeSymbol = semanticModel.Compilation.GetTypeByMetadataName(DependencyAttributeFullName) ?? throw new NullReferenceException("marker attribute was not found.");
 
-                 if (!attributes.Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, attributeSymbol))) return default;
+                 var isGeneratorItem = attributes.Any(a =>
+                 {
+                     var comparer = SymbolEqualityComparer.Default;
+                     return comparer.Equals(a.AttributeClass, generatorAttributeSymbol) || comparer.Equals(a.AttributeClass, dependencyAttributeSymbol);
+                 });
+                 if (!isGeneratorItem) return default;
 
                  var attributeSyntax = syntax.ChildNodes()
                     .OfType<AttributeListSyntax>().SelectMany(l => l.Attributes)
                     .First(a =>
                     {
                         var symbol = semanticModel.GetSymbolInfo(a).Symbol?.ContainingType;
-                        return SymbolEqualityComparer.Default.Equals(symbol, attributeSymbol);
+                        var comparer = SymbolEqualityComparer.Default;
+                        return comparer.Equals(symbol, generatorAttributeSymbol) || comparer.Equals(symbol, dependencyAttributeSymbol);
                     });
 
                  return new MicroGeneratorInfo
@@ -148,12 +162,25 @@ namespace MicroSourceGenerator
             {
                 token.ThrowIfCancellationRequested();
                 var ((context, (generators, diagnostics)), compilation) = pair;
+
+                var genOrDiags = generators.Select(gen =>
+                {
+                    try
+                    {
+                        gen.Initialize(context.SemanticModel);
+                        return (object)gen;
+                    }
+                    catch (Exception ex)
+                    {
+                        return Diagnostic.Create(DiagnosticHelper.GeneratorInitializationError, Location.None, gen, ex.GetType(), ex.StackTrace, ex.Message);
+                    }
+                });
+
                 return new Bundle
                 {
-                    SemanticModel = context.SemanticModel,
                     SyntaxNode = context.Node,
-                    Diagnostics = diagnostics,
-                    Generators = generators,
+                    Diagnostics = genOrDiags.OfType<Diagnostic>().Concat(diagnostics),
+                    Generators = genOrDiags.OfType<IMicroSourceGenerator>(),
                 };
             });
 
@@ -202,6 +229,7 @@ namespace MicroSourceGenerator
             stream.Seek(0, SeekOrigin.Begin);
             var asm = Assembly.Load(stream.ToArray());
             var generators = asm.GetTypes().Where(type => typeof(IMicroSourceGenerator).IsAssignableFrom(type)).Select(Activator.CreateInstance).OfType<IMicroSourceGenerator>();
+
             return (ImmutableArray.CreateRange(generators), result.Diagnostics);
         }
         catch (Exception ex)
@@ -217,13 +245,12 @@ namespace MicroSourceGenerator
             context.ReportDiagnostic(diganostic);
         }
         var syntaxNode = bundle.SyntaxNode;
-        var semanticModel = bundle.SemanticModel;
 
         foreach (var generator in bundle.Generators)
         {
             try
             {
-                if (!generator.Accept(semanticModel, syntaxNode)) continue;
+                if (!generator.Accept(syntaxNode)) continue;
             }
             catch (Exception ex)
             {
@@ -233,7 +260,7 @@ namespace MicroSourceGenerator
 
             try
             {
-                generator.ProductSource(context, semanticModel, syntaxNode);
+                generator.ProductSource(context, syntaxNode);
             }
             catch (Exception ex)
             {

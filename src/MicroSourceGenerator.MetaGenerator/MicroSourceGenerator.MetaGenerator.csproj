@@ -9,8 +9,6 @@
 		<IsRoslynComponent>true</IsRoslynComponent>
 		<Deterministic>true</Deterministic>
 
-		<IsPackable>false</IsPackable>
-		
 		<IncludeBuildOutput>false</IncludeBuildOutput>
 		<SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
 		<IncludeSymbols>false</IncludeSymbols>
@@ -24,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MicroSourceGenerator" Version="0.0.0-alpha.4" GeneratePathProperty="true" />
+		<PackageReference Include="MicroSourceGenerator" Version="0.0.0-alpha.5" GeneratePathProperty="true" />
 		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" PrivateAssets="all" GeneratePathProperty="true" />
 		<PackageReference Include="System.Runtime" Version="4.3.1" PrivateAssets="all" GeneratePathProperty="true" />
 	</ItemGroup>
@@ -36,15 +34,15 @@
 	<Target Name="GetDependencyTargetPaths">
 		<ItemGroup>
 			<TargetPathWithTargetPlatformMoniker Include="$(PkgMicrosoft_Bcl_HashCode)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
-			<TargetPathWithTargetPlatformMoniker Include="$(PkgMicroSourceGenerator)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
 			<TargetPathWithTargetPlatformMoniker Include="$(PkgSystem_Runtime)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
+			<TargetPathWithTargetPlatformMoniker Include="$(PkgMicroSourceGenerator)\lib\netstandard2.0\*.dll" IncludeRuntimeDependency="false" />
 		</ItemGroup>
 	</Target>
 
 	<!-- nuget -->
 	<PropertyGroup>
 		<Authors>maemon4095</Authors>
-		<Version>0.0.0-alpha.1</Version>
+		<Version>0.0.0-alpha.2</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -52,7 +50,7 @@
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<!-- package dependancy -->
 		<None Include="$(PkgMicrosoft_Bcl_HashCode)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-		<None Include="$(PkgMicroSourceGenerator)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 		<None Include="$(PkgSystem_Runtime)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="$(PkgMicroSourceGenerator)\lib\netstandard2.0\*.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
 	</ItemGroup>
 </Project>

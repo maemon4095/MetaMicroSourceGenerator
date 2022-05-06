@@ -4,6 +4,7 @@ namespace MicroSourceGenerator;
 
 public interface IMicroSourceGenerator
 {
-    public bool Accept(SemanticModel semanticModel, SyntaxNode node);
-    public void ProductSource(SourceProductionContext context, SemanticModel semanticModel, SyntaxNode node);
+    public void Initialize(SemanticModel semanticModel);
+    public bool Accept(SyntaxNode node);
+    public void ProductSource(SourceProductionContext context, SyntaxNode node);
 }
